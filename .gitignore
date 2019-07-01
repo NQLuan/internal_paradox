@@ -1,6 +1,6 @@
 # Distribution / packaging
 .idea
-
+*.env
 
 # dotenv
 .env
