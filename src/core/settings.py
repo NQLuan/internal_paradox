@@ -10,7 +10,12 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+API_HOST = env('API_HOST')
+API_PORT = env('API_PORT')
+API_BASE = "{0}:{1}".format(API_HOST, API_PORT)
+if API_PORT == "80":
+    API_BASE = "{0}".format(API_HOST)
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[API_BASE, '0.0.0.0', 'localhost', '127.0.0.1'])
 
 
 # Application definition
