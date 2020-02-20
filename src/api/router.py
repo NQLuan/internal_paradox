@@ -1,12 +1,21 @@
-from django.conf.urls import url, include
-from rest_framework import routers
+from django.conf.urls import include, url
+from rest_framework.routers import DefaultRouter
 
 from api.views import *
 
-router = routers.SimpleRouter(trailing_slash=False)
+router = DefaultRouter()
 
 # Define url in here
-router.register(r'demo', DemoViewSet, base_name="demo")
+router.register(r'actions', ActionViewSet, basename="actions")
+router.register(r'admin', AdminViewSet, basename="admin")
+router.register(r'date', DateViewSet, basename="date")
+router.register(r'login', LoginViewSet, basename="login")
+router.register(r'lunch', LunchViewSet, basename="lunch")
+router.register(r'photo', PhotoViewSet, basename="photo")
+router.register(r'profile', ProfileViewSet, basename="profile")
+router.register(r'leave', ProposeLeaveViewSet, basename="leave")
+router.register(r'team', TeamViewSet, basename="team")
+router.register(r'user', UserViewSet, basename="user")
 
 urlpatterns = [
     url(r'^', include(router.urls))

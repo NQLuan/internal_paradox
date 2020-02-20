@@ -22,7 +22,6 @@ Python 3.6 or 2.7
 
 2. Install all dependencies:
     ```
-        cd src
         pip3 install -r requirements.txt
     ```
 
@@ -33,7 +32,12 @@ Python 3.6 or 2.7
         python3 manage.py migrate
     ```
 
-4. Start API Server
+4. Get Google Calendar API credentials
+    ```
+        https://developers.google.com/calendar/quickstart/go
+    ```
+
+5. Start API Server
     ```
         cd src
         python3 manage.py runserver 127.0.0.1:8001
