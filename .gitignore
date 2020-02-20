@@ -1,6 +1,7 @@
 # Distribution / packaging
 .idea
 *.env
+__pycache__/
 
 # dotenv
 .env
@@ -9,3 +10,13 @@
 venv/
 ENV/
 env/
+media/
+
+# project settings
+/src/media/*
+/src/videos/*
+/.idea
+/env/
+/src/cache/*
+config.env
+*.sh

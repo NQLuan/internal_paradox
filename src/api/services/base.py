@@ -1,4 +1,5 @@
 import logging
+
 from django.db import connections
 
 logger = logging.getLogger("project")
