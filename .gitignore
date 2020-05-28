@@ -20,3 +20,6 @@ media/
 /src/cache/*
 config.env
 *.sh
+
+# .vscode
+.vscode/

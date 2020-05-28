@@ -4,13 +4,13 @@ from . import env, BASE_DIR
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises ImproperlyConfigured exception if SECRET_KEY not in os.environ
 SECRET_KEY = env('SECRET_KEY')
-
+print(env)
 API_HOST = env('API_HOST')
 API_PORT = env('API_PORT')
 API_BASE = "{0}:{1}".format(API_HOST, API_PORT)
 if API_PORT == "80":
     API_BASE = "{0}".format(API_HOST)
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[API_BASE, '127.0.0.1', 'localhost', 'localhost:8001', 'api'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[API_BASE, 'api'])
 
 # Application definition
 DJANGO_APPS = (
