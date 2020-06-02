@@ -1,10 +1,10 @@
 from os.path import join
 from . import env, BASE_DIR
+import json
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises ImproperlyConfigured exception if SECRET_KEY not in os.environ
 SECRET_KEY = env('SECRET_KEY')
-print(env)
 API_HOST = env('API_HOST')
 API_PORT = env('API_PORT')
 API_BASE = "{0}:{1}".format(API_HOST, API_PORT)
