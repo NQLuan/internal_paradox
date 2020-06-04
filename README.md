@@ -43,3 +43,9 @@ Python 3.6 or 2.7
         python3 manage.py runserver 127.0.0.1:8001
         http://127.0.0.1:8001/
     ```
+
+6. For Mac: run before pip install
+    ```
+        export LDFLAGS="-L/usr/local/opt/openssl@1.1/lib"
+        export CPPFLAGS="-I/usr/local/opt/openssl@1.1/include"
+    ```
