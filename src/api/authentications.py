@@ -2,7 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
-from api.services import TokenUtil
+from api_base.services import TokenUtil
 
 
 class APIAuthentication(BaseAuthentication):

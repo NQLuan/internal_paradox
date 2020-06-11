@@ -19,7 +19,7 @@ API_HOST = env('API_HOST')
 API_PORT = env('API_PORT')
 IP = socket.gethostbyname_ex(socket.gethostname())[-1]
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS',
-                         default=[API_HOST, '0.0.0.0', 'localhost', '127.0.0.1', '35.209.247.237'] + [ip for ip in IP])
+                         default=[API_HOST, '0.0.0.0', 'localhost', '127.0.0.1'] + [ip for ip in IP])
 
 # Application definition
 
@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'api',
+    'api'
 ]
 
 AUTH_USER_MODEL = "api.User"
@@ -141,15 +141,17 @@ STATIC_URL = '/static/'
 # MEDIA related settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_IMAGE = 'http://35.209.247.237'
+MEDIA_IMAGE = f'http://{API_HOST}'
 
 # EMAIL related settings
-EMAIL_HOST = socket.gethostbyname('smtp.gmail.com')
-EMAIL_PORT = 587
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env("EMAIL_HOST", default='smtp.sendgrid.net')
+EMAIL_PORT = env("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+DEFAULT_EMAIL_FROM_EMAIL = env("DEFAULT_EMAIL_FROM_EMAIL", default='Management Admin <management-admin@paradox.ai>')
 
 CALENDAR_ID = env('CALENDAR_ID')
 
