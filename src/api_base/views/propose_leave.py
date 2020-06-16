@@ -70,7 +70,10 @@ class ProposeLeaveViewSet(BaseViewSet):
             profile = Profile.objects.get(id=data.get('profile'))
             data['name'] = profile.name
             data['leave_day_left'] = DateService.get_leave_day_statistic(data.get('profile')).get('leave_day_left')
-            data['team'] = Team.objects.get(id=int(profile.teams.split(',')[0])).team_name
+            try:
+                data['team'] = Team.objects.get(id=int(profile.teams.split(',')[0])).team_name
+            except:
+                data['team'] = 'No team'
             data['leave_day_left'] = DateService.get_leave_day_statistic(data.get('profile')).get('leave_day_left')
             if data.get('start_hour') and data.get('end_hour'):
                 start_hour_json = json.loads(data.get('start_hour'))

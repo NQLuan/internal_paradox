@@ -46,6 +46,10 @@ class EmailThread(threading.Thread):
             username=self.sender,
             password=self.mail_password
         )
-        msg = APIEmailMessage(**email_options)
-        msg.content_subtype = 'html'
-        msg.send()
+        try:
+            msg = APIEmailMessage(**email_options)
+            msg.content_subtype = 'html'
+            msg.send()
+        except:
+            # TODO: Add a log right here
+            pass
