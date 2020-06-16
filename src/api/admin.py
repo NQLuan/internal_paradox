@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from api.forms import UserAdminChangeForm, UserAdminCreationForm
-from api.models import Profile, User
+from api_base.forms import UserAdminChangeForm, UserAdminCreationForm
+from api_user.models import Profile, User
 
 
 class ProfileInLine(admin.TabularInline):

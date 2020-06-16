@@ -1,6 +1,6 @@
 from os.path import join
+
 from . import env, BASE_DIR
-import json
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises ImproperlyConfigured exception if SECRET_KEY not in os.environ
@@ -23,13 +23,19 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
     'rest_framework',
     'corsheaders',
+    'django_crontab',
 )
 LOCAL_APPS = (
     'api',
+    'api_base',
+    'api_user',
+    'api_admin',
+    'api_team',
+    'api_workday'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-AUTH_USER_MODEL = "api.User"
+AUTH_USER_MODEL = "api_user.User"
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -82,6 +88,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -114,7 +121,6 @@ DATABASES = {
     'test': db_config('', {'MIRROR': 'default'}),
     REPLICATION_DB_ALIAS: db_config(REPLICATION_PREFIX)
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -149,7 +155,7 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # TODO-hoangnguyen Fix later
-MEDIA_IMAGE = 'http://35.209.247.237'
+MEDIA_IMAGE = f'http://{API_HOST}'
 
 # EMAIL related settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -159,7 +165,15 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default='Management Admin <management-admin@paradox.ai>')
 
 CALENDAR_ID = env('CALENDAR_ID')
 
-UBUNTU_USER = env('UBUNTU_USER')
+CRONJOBS = [
+    ('0 9 * * 1-5', 'api_base.services.cronjobs.leave_notify'),
+    ('45 9 * * 1-5', 'api_base.services.cronjobs.lunch_notify'),
+    ('0 6 1 * *', 'api_base.services.cronjobs.lunch_creation')
+]
+
+LEAVE_NOTIFICATION_SLACK_API = env('LEAVE_NOTIFICATION_SLACK_API', default='https://hooks.slack.com/services/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')
+LUNCH_NOTIFICATION_SLACK_API = env('LUNCH_NOTIFICATION_SLACK_API', default='https://hooks.slack.com/services/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')
