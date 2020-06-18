@@ -2,10 +2,11 @@ from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
 
 from api_admin.views import AdminViewSet
-from api_base.views import ActionViewSet, LoginViewSet, ProposeLeaveViewSet
+from api_base.views import ActionViewSet, LoginViewSet
 from api_team.views import TeamViewSet
 from api_user.views import ProfileViewSet, UserViewSet, PhotoViewSet
 from api_workday.views import DateViewSet, LunchViewSet
+from api_workday.views.propose_leave import ProposeLeaveViewSet
 
 router = DefaultRouter()
 

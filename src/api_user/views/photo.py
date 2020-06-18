@@ -22,6 +22,7 @@ class PhotoViewSet(BaseViewSet):
 
     def create(self, request, *args, **kwargs):
         rs = []
+        # TODO Check UI for this
         data = request.data.copy()
         for image in data.getlist('image'):
             data['photo'] = image
@@ -32,7 +33,6 @@ class PhotoViewSet(BaseViewSet):
         return Response(rs, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
-        filter_kwargs = kwargs['pk']
-        queryset = self.filter_queryset(self.get_queryset()).filter(profile=filter_kwargs)
+        queryset = self.filter_queryset(self.get_queryset()).filter(profile=kwargs.get('pk'))
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

@@ -4,11 +4,12 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from api.authentications import APIAuthentication
+from api_base.services import Utils
 from api_base.views import BaseViewSet
 from api_team.models import Team
 from api_team.serializers import TeamSerializers, MemberSerializer
 from api_team.services import TeamService
-from api_user.models import User, Profile
+from api_user.models import Profile
 
 
 class TeamViewSet(BaseViewSet):
@@ -24,42 +25,23 @@ class TeamViewSet(BaseViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        TeamService.update_leader_teams(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    """
-    LIST FUNCTION
-    """
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        TeamService.list_team_member(serializer.data)
         return Response(serializer.data)
-
-    """
-    RETRIEVE FUNCTION
-    """
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        rs = TeamService.retrieve_team_member(serializer.data, instance)
-        rs['non_members'] = TeamService.get_potential_members(instance)
-        return Response(rs)
-
-    """
-    DELETE FUNCTION
-    """
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def perform_destroy(self, instance):
-        TeamService.remove_team(instance)
+        TeamService.delete_team(instance)
         instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False)
     def send_leader(self, request, *args, **kwargs):
@@ -72,12 +54,12 @@ class TeamViewSet(BaseViewSet):
         data = request.data.copy()
         if data.get('emails'):
             for email in data.get('emails').split(','):
-                data['email'] = email
+                data.update(email=email)
                 member_serializer = MemberSerializer(data=data)
                 if member_serializer.is_valid(raise_exception=True):
                     validate_data = member_serializer.validated_data
                     if validate_data.get('email'):
-                        TeamService.add_new_member(validate_data, instance)
+                        TeamService.add_new_member(instance, **validate_data)
         return Response({'Success': True})
 
     @action(methods=['put'], detail=True)
@@ -91,14 +73,12 @@ class TeamViewSet(BaseViewSet):
 
     @action(methods=['put'], detail=True)
     def set_leader(self, request, *args, **kwargs):
-        instance = self.get_object()
+        team = self.get_object()
         serializer = MemberSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             validate_data = serializer.validated_data
-            user = User.objects.get(email=validate_data.get('email'))
-            instance.team_leader = user.id
-            instance.save()
-        return Response({'Success': True})
+            TeamService.set_leader(team, **validate_data)
+            return Response({'Success': True})
 
     @action(methods=['get'], detail=True)
     def get_new_teams(self, request, *args, **kwargs):
@@ -109,11 +89,8 @@ class TeamViewSet(BaseViewSet):
 
     @action(methods=['put'], detail=False)
     def move_team(self, request, *args, **kwargs):
-        user_id = int(request.data.get('user_id'))
-        current_team_id = int(request.data.get('current_team_id'))
-        new_team_id = int(request.data.get('new_team_id'))
-        user_profile = Profile.objects.get(id=user_id)
-        TeamService._remove_team(user_profile, current_team_id)
-        user_profile.save()
-        TeamService.update_user_team(user_id, new_team_id)
+        user_id = Utils.convert_to_int(request.data.get('user_id'))
+        current_team_id = Utils.convert_to_int(request.data.get('current_team_id'))
+        new_team_id = Utils.convert_to_int(request.data.get('new_team_id'))
+        TeamService.move_team(user_id, current_team_id, new_team_id)
         return Response({'Success': True})

@@ -2,8 +2,8 @@ from django.conf import settings
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api_admin.services import ExcelImportService
 from api_base.serializers import InviteSerializer
-from api_base.services import ExcelImportService
 from api_base.views import BaseViewSet
 from api_user.models import User, Profile
 from api_user.services import UserService
@@ -37,13 +37,14 @@ class AdminViewSet(BaseViewSet):
     @action(methods=['post'], detail=False)
     def send_first_row(self, request, *args, **kwargs):
         file = request.FILES.get('files').file
-        df, _ = ExcelImportService.get_service(file)
+        df = ExcelImportService.read_excel(file)
         return Response({'columns': list(df.columns)})
 
     @action(methods=['post'], detail=False)
     def check_import(self, request, *args, **kwargs):
         file = request.FILES.get('files').file
-        df, import_service = ExcelImportService.get_service(file)
+        import_service = ExcelImportService()
+        df = import_service.read_excel(file)
         rs = import_service.check_import(df=df, data=request.data)
         return Response(rs)
 

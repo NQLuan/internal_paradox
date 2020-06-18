@@ -4,11 +4,21 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.template.loader import render_to_string
 
-from api_base.services import BaseService, TokenUtil, EmailThread
+from api_base.services import BaseService, TokenUtil, SendMail
 from api_user.models import User, Profile
 
 
 class UserService(BaseService):
+
+    @classmethod
+    def get_user_by_id(cls, pk):
+        user = User.objects.filter(pk=pk).first()
+        return user
+
+    @classmethod
+    def get_user_by_email(cls, email):
+        user = User.objects.filter(email=email).first()
+        return user
 
     @classmethod
     def activate_user(cls, user):
@@ -36,7 +46,7 @@ class UserService(BaseService):
 
     @classmethod
     def invite(cls, email, name):
-        cls.send_mail(email=email, name=name, phone="")
+        cls.send_mail(email=email, name=name, send_email=True)
         return {
             "success": True,
             "user": {
@@ -46,14 +56,15 @@ class UserService(BaseService):
         }
 
     @classmethod
-    def send_mail(cls, email=None, name=None, phone=None, personal_email=None):
-        token = TokenUtil.verification_encode(name, email, phone, personal_email)
-        # TODO: Look at the link again
-        link = f'http://{settings.API_HOST}/verify?token={token}'
-        content = render_to_string('../templates/invitation_email.html',
-                                   {'name': name, 'email': email, 'link': link, 'token': token})
-        EmailThread(subject='Welcome to Company Management',
-                    email=[email, personal_email], content=content).start()
+    def send_mail(cls, email=None, name=None, phone=None, personal_email=None, send_email=False):
+        if send_email:
+            token = TokenUtil.verification_encode(name, email, phone, personal_email)
+            # TODO: Look at the link again
+            link = f'http://{settings.API_HOST}/verify?token={token}'
+            content = render_to_string('../templates/invitation_email.html',
+                                       {'name': name, 'email': email, 'link': link, 'token': token})
+            SendMail.start([email, personal_email], 'Welcome to Company Management', content)
+
         if phone == "":
             phone = None
         user = User.objects.create_user(email=email, password='123456')

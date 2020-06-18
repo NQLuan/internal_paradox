@@ -43,15 +43,15 @@ class GoogleCalendar:
         service = build('calendar', 'v3', credentials=creds)
         return service
 
-    @staticmethod
-    def create_event(data, user_team):
+    @classmethod
+    def create_event(cls, data, user_team):
         title = f"{data.get('title')} - {user_team} - {data.get('content')}"
         reason = 'No reason'
         if data.get('reason'):
             reason = data.get('reason')
         start = str(data.get('date')) + 'T' + data.get('content').split(' ')[-3][1:6] + ':00'
         end = str(data.get('date')) + 'T' + data.get('content').split(' ')[-1][:5] + ':00'
-        service = GoogleCalendar.get_calendar_service()
+        service = cls.get_calendar_service()
         service.events().insert(
             calendarId=settings.CALENDAR_ID,
             body={
@@ -63,9 +63,9 @@ class GoogleCalendar:
         ).execute()
         return False
 
-    @staticmethod
-    def get():
-        service = GoogleCalendar.get_calendar_service()
+    @classmethod
+    def get(cls):
+        service = cls.get_calendar_service()
         # Call the Calendar API
         now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
         events_result = service.events().list(
@@ -75,10 +75,10 @@ class GoogleCalendar:
         events = events_result.get('items', [])
         return events
 
-    @staticmethod
-    def update_event(data, old_content, new_content, user_team):
+    @classmethod
+    def update_event(cls, data, old_content, new_content, user_team):
         # update the event to according time
-        service = GoogleCalendar.get_calendar_service()
+        service = cls.get_calendar_service()
         title = f"{data.get('title')} - {user_team} - {new_content}"
         reason = 'No reason'
         if data.get('reason'):
@@ -87,7 +87,7 @@ class GoogleCalendar:
         end = str(data.get('date')) + 'T' + new_content.split(' ')[-1][:5] + ':00'
 
         calendar_id = None
-        items = GoogleCalendar.get()
+        items = cls.get()
         for item in items:
             if item.get('summary') == f"{data.get('title')} - {user_team} - {old_content}" and item.get('start').get(
                     'dateTime')[:10] == data.get('start'):
@@ -104,9 +104,9 @@ class GoogleCalendar:
                 },
             ).execute()
 
-    @staticmethod
-    def delete_event(items, dates, user_team):
-        service = GoogleCalendar.get_calendar_service()
+    @classmethod
+    def delete_event(cls, items, dates, user_team):
+        service = cls.get_calendar_service()
         try:
             calendar_id = None
             for date in dates:

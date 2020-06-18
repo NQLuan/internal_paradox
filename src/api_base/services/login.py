@@ -5,10 +5,11 @@
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 
-from api_base.services import BaseService, TokenUtil
-from api_user.models import User
+from api_base.services import BaseService, TokenUtil, SendMail
+from api_user.services import UserService
 
 
 class LoginService(BaseService):
@@ -16,37 +17,43 @@ class LoginService(BaseService):
     LOGIN METHOD
     """
 
-    @staticmethod
-    def login(validate_data):
+    @classmethod
+    def login(cls, **kwargs):
         try:
-            user = User.objects.get(email=validate_data.get('email'))
-            if not user.check_password(validate_data.get('password')):
+            email = kwargs.get('email')
+            password = kwargs.get('password')
+            user = UserService.get_user_by_email(email)
+            if not user or not user.check_password(password):
                 raise ValidationError("Invalid username or password")
             token = TokenUtil.encode(user)
-            return {
-                "success": True,
-                "token": token,
-                "user": user.id,
-                "profile_id": user.profile.id,
-                "email": user.email,
-                "active": user.active,
-                "admin": user.admin,
-                "image": {
-                    True: settings.MEDIA_IMAGE + '/media/' + str(user.profile.image),
-                    False: None
-                }[user.profile.image.name is not None and user.profile.image.name != ""]
-            }
-        except User.DoesNotExist:  # noqa
-            raise ValidationError("Invalid username or password")
+            res = dict(
+                success=True,
+                token=token,
+                user=user.id,
+                profile_id=user.profile.id,
+                email=user.email,
+                active=user.active,
+                admin=user.admin,
+                image=None
+            )
+            if user.profile.image.name:
+                res.update(image=settings.MEDIA_IMAGE + '/media/' + str(user.profile.image))
+            return res
         except Exception as e:
             raise e
 
-    """
-    CREATE USER AFTER VERIFIED SERVICE
-    """
+    @classmethod
+    def forgot_password(cls, email):
+        user = UserService.get_user_by_email(email)
+        if user:
+            token = TokenUtil.encode(user)
+            link = f'http://{settings.API_HOST}/resetPassword?token={token}'
+            content = render_to_string('../templates/password_email.html', {'link': link})
+            SendMail.start([email], 'Forgot Password', content)
+            return True
+        return False
 
-    @staticmethod
-    def verify(data, password):
-        user = User.objects.get(email=data.get('email'))
-        user.password = make_password(password=password, salt=settings.SECRET_KEY)
+    @classmethod
+    def change_password(cls, user, password):
+        user.password = make_password(password, salt=settings.SECRET_KEY)
         user.save()

@@ -16,5 +16,5 @@ class PhotoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret.update(photo=f'http://{settings.IP[0]}:{settings.API_PORT}{ret.get("photo")}')
+        ret.update(photo=f'http://{settings.API_HOST}:{settings.API_PORT}{ret.get("photo")}')
         return ret

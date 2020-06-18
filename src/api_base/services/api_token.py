@@ -5,7 +5,6 @@ from django.conf import settings
 from rest_framework.exceptions import ValidationError
 
 from api_base.services import BaseService
-from api_user.models import User
 
 
 class TokenUtil(BaseService):
@@ -33,19 +32,19 @@ class TokenUtil(BaseService):
 
     @staticmethod
     def decode(token, token_hours=12):
-        try:
-            payload = jwt.decode(token, TokenUtil.get_secret_key(), algorithms=['HS256'])
+        payload = jwt.decode(token, TokenUtil.get_secret_key(), algorithms=['HS256'])
 
-            iat = int(payload.get("iat"))
-            email = payload.get('email')
+        iat = int(payload.get("iat"))
+        email = payload.get('email')
 
-            if iat + token_hours * 60 * 60 < datetime.now().timestamp():
-                return None
-
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:  # noqa
+        if iat + token_hours * 60 * 60 < datetime.now().timestamp():
             return None
-        return user
+
+        from api_user.services import UserService
+        user = UserService.get_user_by_email(email)
+        if user:
+            return user
+        return None
 
     @staticmethod
     def verification_encode(name, email, phone, personal_email):

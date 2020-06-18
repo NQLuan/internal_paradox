@@ -22,12 +22,11 @@ class UserViewSet(BaseViewSet):
 
     def create(self, request, *args, **kwargs):
         invite_serializer = InviteSerializer(data=request.data)
-        invite_serializer.is_valid(raise_exception=True)
-
-        email = request.data.get('email')
-        name = request.data.get('name')
-        res = UserService.invite(email, name)
-        return Response(res)
+        if invite_serializer.is_valid(raise_exception=True):
+            email = request.data.get('email')
+            name = request.data.get('name')
+            res = UserService.invite(email, name)
+            return Response(res)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
