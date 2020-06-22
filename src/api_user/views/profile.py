@@ -18,38 +18,20 @@ class ProfileViewSet(BaseViewSet):
     permission_classes = (IsAuthenticated,)
     permission_classes_by_action = {'destroy': [IsAdminUser]}
 
-    """
-    LIST FUNCTION
-    """
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    """
-    RETRIEVE FUNCTION
-    """
-
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        instance.email = instance.user.email
         serializer = self.get_serializer(instance)
-        data = serializer.data.copy()
-        # TODO Put to serializer
-        data['email'] = instance.user.email
-        return Response(data)
-
-    """
-    UPDATE FUNCTIONS
-    """
+        return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        # TODO Put to serializer
-        if request.data.get('email'):
-            instance.user.email = request.data.get('email')
-            instance.user.save()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
@@ -67,6 +49,7 @@ class ProfileViewSet(BaseViewSet):
         data = request.data.copy()
         if data.get('lunch_weekly') == 'null':
             data['lunch_weekly'] = None
+        # TODO Check UI again for this
         data['lunch'] = {
             'true': True,
             'false': False

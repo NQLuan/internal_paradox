@@ -155,7 +155,7 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # TODO-hoangnguyen Fix later
-MEDIA_IMAGE = f'http://{API_HOST}'
+MEDIA_IMAGE = f'http://{API_HOST}:{API_PORT}'
 
 # EMAIL related settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

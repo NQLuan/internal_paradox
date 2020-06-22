@@ -11,3 +11,4 @@ __date__ = "04/06/2020 09:31"
 
 from .date import DateService
 from .lunch import LunchService
+from .propose_leave import ProposeLeaveService

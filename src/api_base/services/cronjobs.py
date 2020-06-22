@@ -2,9 +2,6 @@
 #
 # Copyright (C) 2020 paradox.ai
 #
-# Release: v1.9.7
-# @link olivia.paradox.ai
-#
 
 __author__ = "huy.tran@paradox.ai"
 __date__ = "11/06/2020 11:53"
@@ -16,17 +13,18 @@ from django.conf import settings
 
 from api_base.services import Utils
 from api_user.models import Profile
+from api_workday.constants import Workday
 from api_workday.models import Date, Lunch
 from api_workday.services import LunchService
 
 
 def leave_notify():
-    leave = Date.objects.filter(date=datetime.datetime.now(), title='Leave')
+    leave = Date.objects.filter(date=datetime.datetime.now(), title=Workday.LEAVE)
     leave_profiles = [date.profile_id for date in leave]
     leave_names = [profile.name for profile in Profile.objects.filter(id__in=leave_profiles)]
     leave_text = '\n• '.join(leave_names)
 
-    remote = Date.objects.filter(date=datetime.datetime.now(), title='Remote work')
+    remote = Date.objects.filter(date=datetime.datetime.now(), title=Workday.REMOTE)
     remote_profiles = [date.profile_id for date in remote]
     remote_names = [profile.name for profile in Profile.objects.filter(id__in=remote_profiles)]
     remote_text = '\n• '.join(remote_names)

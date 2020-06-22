@@ -7,7 +7,7 @@ from django.db import models
 
 from api_base.models import TimeStampedModel
 from api_user.models import Profile
-from api_workday.constants import TYPES, full
+from api_workday.constants import Workday
 
 
 class Date(TimeStampedModel):
@@ -16,7 +16,7 @@ class Date(TimeStampedModel):
     title = models.CharField(max_length=255, null=True)
     content = models.CharField(max_length=255, default=None, null=True)
     reason = models.CharField(max_length=255, default=None, null=True)
-    type = models.CharField(max_length=255, choices=TYPES, null=True, default=full)
+    type = models.CharField(max_length=255, choices=Workday.TYPES, null=True, default=Workday.FULL)
 
     class Meta:
         db_table = "hr_date"

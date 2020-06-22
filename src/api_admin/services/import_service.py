@@ -80,12 +80,3 @@ class ExcelImportService(BaseService):
             return pandas.read_excel(file)
         except:
             raise ValidationError("Input file is not valid")
-
-    @staticmethod
-    def get_service(file):
-        try:
-            df = pandas.read_excel(file)
-            instance = ExcelImportService()
-            return df, instance
-        except:
-            raise ValidationError('Input file is not valid')

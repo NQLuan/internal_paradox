@@ -50,6 +50,13 @@ class EmailThread(threading.Thread):
             msg = APIEmailMessage(**email_options)
             msg.content_subtype = 'html'
             msg.send()
-        except:
+        except Exception as e:
             # TODO: Add a log right here
-            pass
+            print(str(e))
+
+
+class SendMail:
+
+    @staticmethod
+    def start(email_list, subject, content):
+        EmailThread(subject=subject, email=email_list, content=content).start()
