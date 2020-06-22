@@ -6,6 +6,7 @@
 import calendar
 import datetime
 
+from django.db.models import F
 from lunarcalendar import Converter, Solar
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -25,21 +26,20 @@ class LunchService(BaseService):
         now = datetime.datetime.now()
         next_year, next_month = Utils.nextmonth(year=now.year, month=now.month)
         for date in Lunchdate.objects.filter(date__month__in=[now.month, next_month]):
-            queryset = Lunch.objects.filter(date=date.id).values('profile')
-            for data in queryset:
-                data['name'] = Profile.objects.get(id=data.get('profile')).name
+            queryset = Lunch.objects.filter(date=date.id).annotate(name=F('profile__name')).values('profile', 'name')
             profiles = Profile.objects.filter(user__active=True).exclude(
                 id__in=[data.get('profile') for data in queryset]).values('id', 'name')
             response.extend(({'start': date.date, 'end': date.date, 'title': 'Eat', 'class': 'eat',
                               'content': str(queryset.count()), 'reason': queryset},
                              {'start': date.date, 'end': date.date, 'title': 'No eat', 'class': 'no',
                               'content': str(profiles.count()), 'reason': profiles}))
+        return response
 
     @classmethod
     def create_lunch(cls, data, day):
         cls.check_order_time(day, datetime.datetime.now())
         try:
-            lunch_date = Lunchdate.objects.filter(date=day)
+            lunch_date = Lunchdate.objects.get(date=day)
         except Lunchdate.DoesNotExist:
             lunch_date = Lunchdate.objects.create(date=day)
         data.update(date=lunch_date.id)

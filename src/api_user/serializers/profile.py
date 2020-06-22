@@ -56,10 +56,10 @@ class ProfileName(serializers.ModelSerializer):
             try:
                 _lunch = lunch_objs.get(profile_id=ret.get('id'))
                 ret.update(
-                    lunch_id=_lunch.first().id,
+                    lunch_id=_lunch.id,
                     status='Lunch'
                 )
-            except Lunch.DoesNotExists:
+            except Lunch.DoesNotExist:
                 ret.update(status='No lunch')
         else:
             ret.update(status='No lunch')
