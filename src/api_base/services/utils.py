@@ -7,6 +7,7 @@ __author__ = "huy.tran@paradox.ai"
 __date__ = "03/06/2020 16:35"
 
 import datetime
+import json
 
 from api_base.services import BaseService
 
@@ -32,3 +33,10 @@ class Utils(BaseService):
     def get_current_date():
         current_day = datetime.datetime.now()
         return current_day.month, current_day.year
+
+    @staticmethod
+    def safe_jsonloads(val, default=None):
+        try:
+            return json.loads(val)
+        except:
+            return default

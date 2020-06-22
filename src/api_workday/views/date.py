@@ -41,13 +41,15 @@ class DateViewSet(BaseViewSet):
                 serializer = self.get_serializer(data=data)
                 serializer.is_valid(raise_exception=True)
                 self.perform_create(serializer)
+                rs.append(serializer.data)
+
                 # TODO Remove this once done update Google Calendar
                 try:
                     GoogleCalendar.create_event(data, user_team)
                 except Exception as e:
                     print(f"Error with Google Calendar: {str(e)}")
-                DateService.update_lunch(data, date)
-                rs.append(serializer.data)
+                have_lunch = request.data.get('lunch')
+                DateService.update_lunch(profile_id, date, have_lunch)
         leave_day_left = DateService.get_leave_day_statistic(profile_id).get('leave_day_left')
         res = dict(
             success=True,

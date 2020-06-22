@@ -24,7 +24,7 @@ class DateService(BaseService):
     @classmethod
     def get_creation_data(cls, data):
         proposed = ProposeLeave.objects.get(id=int(data.get('id')))
-        proposed.status = 'Accepted'
+        proposed.status = Workday.STATUS_ACCEPTED
         proposed.save()
 
         start_date = cls.get_date(data.get('start'))
@@ -85,20 +85,18 @@ class DateService(BaseService):
         return data
 
     @classmethod
-    def update_lunch(cls, data, date):
-        if data.get('lunch') == 'No' and Lunch.objects.filter(profile_id=int(data.get('profile')),
-                                                              date__date=date).count():
-            instance = Lunch.objects.get(profile_id=int(data.get('profile')), date__date=date)
-            instance.delete()
-        if data.get('lunch') == 'Yes' and not Lunch.objects.filter(profile_id=int(data.get('profile')),
-                                                                   date__date=date).count():
-            lunch_date = Lunchdate.objects.filter(date=date)
-            if lunch_date.count():
-                if not Lunch.objects.filter(profile_id=int(data.get('profile')), date=lunch_date[0]).count():
-                    Lunch.objects.create(profile_id=int(data.get('profile')), date=lunch_date[0])
+    def update_lunch(cls, profile_id, date, have_lunch):
+        lunch = Lunch.objects.filter(profile_id=profile_id, date__date=date).first()
+        if have_lunch == 'No' and lunch:
+            lunch.delete()
+        if have_lunch == 'Yes' and not lunch:
+            lunch_date = Lunchdate.objects.filter(date=date).first()
+            if lunch_date:
+                if not Lunch.objects.filter(profile_id=profile_id, date=lunch_date).exists():
+                    Lunch.objects.create(profile_id=profile_id, date=lunch_date)
             else:
                 lunch_date = Lunchdate.objects.create(date=date)
-                Lunch.objects.create(profile_id=int(data.get('profile')), date=lunch_date)
+                Lunch.objects.create(profile_id=profile_id, date=lunch_date)
 
     @classmethod
     def duplicate_date(cls, day, data, key, user_team):
@@ -170,7 +168,7 @@ class DateService(BaseService):
 
     @classmethod
     def get_leave_remote(cls, queryset, profile_id):
-        remote = queryset.filter(profile_id=profile_id, title='Remote work').count()
+        remote = queryset.filter(profile_id=profile_id, title=Workday.REMOTE).count()
         leave = queryset.filter(profile_id=profile_id, title=Workday.LEAVE)
         half_leave_day = leave.exclude(type=Workday.FULL).count()
         full_leave_day = leave.filter(type=Workday.FULL).count()
