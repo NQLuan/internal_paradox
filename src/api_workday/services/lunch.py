@@ -50,9 +50,9 @@ class LunchService(BaseService):
 
     @classmethod
     def update_lunch_for_user(cls, data, day, lunch_id):
-        if Lunchdate.objects.filter(date=day).count():
+        if Lunchdate.objects.filter(date=day).exists():
             lunch_date = Lunchdate.objects.get(date=day)
-            if Lunch.objects.filter(profile=lunch_id, date=lunch_date).count():
+            if Lunch.objects.filter(profile=lunch_id, date=lunch_date).exists():
                 instance = Lunch.objects.get(profile=lunch_id, date=lunch_date)
                 cls.check_order_time(instance.date.date, datetime.datetime.now())
                 instance.delete()
@@ -89,7 +89,7 @@ class LunchService(BaseService):
             num_days = calendar.monthrange(year, month)[1]
             days = [datetime.date(year, month, day) for day in range(1, num_days + 1)]
             objs = [Lunchdate(date=day) for day in days if day.weekday() != 5 and day.weekday() != 6
-                    and not Lunchdate.objects.filter(date=day).count()]
+                    and not Lunchdate.objects.filter(date=day).exists()]
             Lunchdate.objects.bulk_create(objs)
             now = datetime.datetime.now()
             if now.hour >= 10:
@@ -98,7 +98,7 @@ class LunchService(BaseService):
                 lunch_days = Lunchdate.objects.filter(date__month=month, date__gte=now)
             lunch_objs = [Lunch(profile=user, date=day) for user in lunch_users for day in lunch_days
                           if user.lunch_weekly and day.date.weekday() in list(map(int, user.lunch_weekly.split(',')))
-                          and not Lunch.objects.filter(profile=user, date=day).count()]
+                          and not Lunch.objects.filter(profile=user, date=day).exists()]
             Lunch.objects.bulk_create(lunch_objs)
             cls.update_lunar_month()
 
@@ -118,7 +118,7 @@ class LunchService(BaseService):
             num_days = calendar.monthrange(year, month)[1]
             days = [datetime.date(year, month, day) for day in range(1, num_days + 1)]
             objs = [Lunchdate(date=day) for day in days if day.weekday() != 5 and day.weekday() != 6
-                    and not Lunchdate.objects.filter(date=day).count()]
+                    and not Lunchdate.objects.filter(date=day).exists()]
             Lunchdate.objects.bulk_create(objs)
             now = datetime.datetime.now()
             if now.hour >= 10:
@@ -126,7 +126,7 @@ class LunchService(BaseService):
             else:
                 lunch_days = Lunchdate.objects.filter(date__month=month, date__gte=now)
             lunch_objs = [Lunch(profile=user, date=day) for user in lunch_users for day in lunch_days
-                          if not Lunch.objects.filter(profile=user, date=day).count()]
+                          if not Lunch.objects.filter(profile=user, date=day).exists()]
             Lunch.objects.bulk_create(lunch_objs)
 
     @classmethod
