@@ -47,17 +47,21 @@ class ProfileViewSet(BaseViewSet):
     def update_lunch(self, request, *args, **kwargs):
         # TODO Create a service/update validate for ProfileLunch for this
         data = request.data.copy()
-        if data.get('lunch_weekly') == 'null':
-            data['lunch_weekly'] = None
-        # TODO Check UI again for this
-        data['lunch'] = {
-            'true': True,
-            'false': False
-        }[data.get('check')]
-        data['veggie'] = {
-            'true': True,
-            'false': False
-        }[data.get('veggie')]
+        # TODO Check UI again for all this, after update, remove below codes
+        # FIXME lunch_weekly need to remove ',' as first character
+        # FIXME lunch and veggie param need to be 0/1 instead
+        lunch_weekly = data.get('lunch_weekly')
+        if lunch_weekly == 'null':
+            lunch_weekly = None
+        elif lunch_weekly.startswith(','):
+            lunch_weekly = lunch_weekly[1:]
+        data.update(
+            lunch_weekly=lunch_weekly,
+            lunch=True if data.get('check') == 'true' else False,
+            veggie=True if data.get('veggie') == 'true' else False,
+        )
+        # TODO Remove to here
+
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = ProfileLunch(instance, data=data, partial=partial)
