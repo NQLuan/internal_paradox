@@ -29,6 +29,7 @@ class Profile(TimeStampedModel):
     lunch = models.BooleanField(default=False)
     lunch_weekly = models.CharField(max_length=20, null=True)
     veggie = models.BooleanField(default=False)
+    line_manager = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         db_table = 'hr_profiles'

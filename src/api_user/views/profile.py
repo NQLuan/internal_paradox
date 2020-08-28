@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -16,7 +17,7 @@ class ProfileViewSet(BaseViewSet):
     pagination_class = None
     authentication_classes = (APIAuthentication,)
     permission_classes = (IsAuthenticated,)
-    permission_classes_by_action = {'destroy': [IsAdminUser]}
+    permission_classes_by_action = {'destroy': [IsAdminUser], 'set_line_manager': [IsAdminUser]}
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -86,3 +87,12 @@ class ProfileViewSet(BaseViewSet):
         instance = self.get_object()
         serializer = ProfileLunch(instance)
         return Response(serializer.data)
+    
+    @action(methods=['post'], detail=True)
+    def set_line_manager(self, request, *args, **kwargs):
+        current_user = get_object_or_404(Profile, pk=kwargs['pk'])
+        line_manager = get_object_or_404(Profile, pk=request.data['profile_id'])
+        current_user.line_manager = line_manager
+        current_user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
