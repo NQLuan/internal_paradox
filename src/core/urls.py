@@ -5,4 +5,5 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'^api/v1/', include(('api.router', 'api'), namespace='v1')),
     url(r'^api/v1/user/', include('api_user.urls')),
+    url(r'^api/v1/workday/', include('api_workday.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

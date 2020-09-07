@@ -5,16 +5,15 @@
 
 from api.base_const import const
 
-
 class Workday(const):
     MORNING = 'Morning'
     AFTERNOON = 'Afternoon'
-    FULL = 'Full day'
+    FULL = 'All day'
 
     TYPES = (
         (MORNING, 'Morning'),
         (AFTERNOON, 'Afternoon'),
-        (FULL, 'Full day')
+        (FULL, 'All day')
     )
 
     LEAVE = 'Leave'
@@ -22,8 +21,12 @@ class Workday(const):
 
     DEFAULT_START_HOUR = '08:00'
     DEFAULT_END_HOUR = '17:30'
+    DEFAULT_START_HOUR_AFTERNOON = '13:30'
 
     STATUS_ACCEPTED = 'Accepted'
     STATUS_PASSED = 'Passed'
     STATUS_PENDING = 'Pending'
     STATUS_REJECTED = 'Rejected'
+    STATUS_FORWARDED = 'Forwarded'
+    STATUS_APPROVED = 'Approved'
+    STATUS_CANCEL = 'Cancel'

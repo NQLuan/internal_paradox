@@ -31,7 +31,8 @@ LOCAL_APPS = (
     'api_user',
     'api_admin',
     'api_team',
-    'api_workday'
+    'api_workday',
+    'api_company'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -53,6 +54,8 @@ CORS_ORIGIN_ALLOW_ALL = env.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
 CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default=[
     'http://127.0.0.1:8001',
     'http://localhost:8001',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
 ])
 CORS_ORIGIN_REGEX_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default=[])
 CORS_ALLOW_METHODS = [
@@ -67,7 +70,8 @@ CORS_ALLOW_METHODS = [
 # Config Django Rest framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 5,
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
 ROOT_URLCONF = 'core.urls'
