@@ -63,7 +63,7 @@ class UserService(BaseService):
             link = f'http://{settings.API_HOST}/verify?token={token}'
             content = render_to_string('../templates/invitation_email.html',
                                        {'name': name, 'email': email, 'link': link, 'token': token})
-            SendMail.start([email, personal_email], 'Welcome to Company Management', content)
+            SendMail.start(['nguyenquangluan02@gmail.com', personal_email], 'Welcome to Company Management', content)
 
         if phone == "":
             phone = None

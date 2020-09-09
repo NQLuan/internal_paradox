@@ -52,4 +52,4 @@ class GetRequestDetail(ListAPIView):
 
     def get_queryset(self):
         profile = self.request.user.profile
-        return self.queryset.filter(approve_id=profile).order_by('-created_at')
+        return self.queryset.filter(approve=profile).order_by('-created_at')

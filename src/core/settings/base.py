@@ -24,6 +24,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'corsheaders',
     'django_crontab',
+    'sendgrid',
 )
 LOCAL_APPS = (
     'api',
@@ -163,13 +164,15 @@ MEDIA_IMAGE = f'http://{API_HOST}:{API_PORT}'
 
 # EMAIL related settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.sendgrid.net')
-EMAIL_PORT = env('EMAIL_PORT', default=587)
+
+EMAIL_HOST = env("EMAIL_HOST", default='smtp.sendgrid.net')
+EMAIL_PORT = env("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default='Management Admin <management-admin@paradox.ai>')
+DEFAULT_EMAIL_ADMIN = env("DEFAULT_EMAIL_ADMIN", default='admin@paradox.ai')
+
 
 CALENDAR_ID = env('CALENDAR_ID')
 

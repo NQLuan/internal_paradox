@@ -7,28 +7,29 @@ from api_workday.constants.date import Workday
 from api_company.models import Company
 from django.utils import timezone
 from datetime import datetime
-from rest_framework.exceptions import APIException
+from api_workday.services.send_mail import SendMailRequestOff
 
 
 class ActionRequestService:
 
     @classmethod
-    def create_action_user(cls, request_off_id, profile_id):
+    def create_action_user(cls, request_off, profile):
         data = {
-            "request_off_id": request_off_id,
-            "approve_id": profile_id
+            "request_off": request_off.id,
+            "approve": profile.id
         }
+        # SendMailRequestOff.send_request()
         serializer = RequestDetailSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(request_off_id_id=request_off_id)
+            serializer.save(request_off_id=request_off.id)
 
     @classmethod
     def action_approve(cls, request_off_id, user, comment):
         company_setting = Company.objects.filter().first()
         level = company_setting.maximum_level_approved
-        count_action = RequestDetail.objects.filter(request_off_id_id=request_off_id).count()
+        count_action = RequestDetail.objects.filter(request_off_id=request_off_id).count()
         request_off = RequestOff.objects.filter(id=request_off_id).first()
-        request_detail = RequestDetail.objects.filter(request_off_id_id=request_off_id, approve_id=user).first()
+        request_detail = RequestDetail.objects.filter(request_off_id=request_off_id, approve=user).first()
         if request_detail.status or request_off.status == Workday.STATUS_CANCEL:
             return request_detail
         with transaction.atomic():
@@ -48,7 +49,7 @@ class ActionRequestService:
     @classmethod
     def action_reject(cls, request_off_id, user, comment):
         request_off = RequestOff.objects.filter(id=request_off_id).first()
-        request_detail = RequestDetail.objects.filter(request_off_id_id=request_off_id, approve_id=user).first()
+        request_detail = RequestDetail.objects.filter(request_off_id=request_off_id, approve=user).first()
         if request_detail.status or request_off.status == Workday.STATUS_CANCEL:
             return request_detail
         with transaction.atomic():
@@ -75,11 +76,11 @@ class ActionRequestService:
     @classmethod
     def allow_or_not_cancel(cls, date_off):
         if date_off.type in (Workday.MORNING, Workday.FULL):
-            start_hour = str(date_off.date)+"T"+Workday.DEFAULT_START_HOUR+":00+0700"
+            start_hour = str(date_off.date) + "T" + Workday.DEFAULT_START_HOUR + ":00+0700"
         else:
             start_hour = str(date_off.date) + "T" + Workday.DEFAULT_START_HOUR_AFTERNOON + ":00+0700"
 
-        hour = datetime.strptime(start_hour, "%Y-%m-%dT%H:%M:%S%z")-timezone.now()
+        hour = datetime.strptime(start_hour, "%Y-%m-%dT%H:%M:%S%z") - timezone.now()
         if hour.days >= 0 and hour.seconds > 3600:
             return True
         return False
