@@ -60,9 +60,11 @@
                      font-family: Avenir, sans-serif; font-size: 16px; font-weight: 400; line-height: 25px;">
                         <p style="margin: 0;">Greeting admins,
                         </p>
-                        <p>Employee {{ name }} will be out of the office starting {{ start }} through {{ end }}.</p>
-                        <p>If you need immediate assistance during their absence, please contact {{ name }}
-                            at {{ email }}. Otherwise they will respond to your emails as soon as possible upon their
+                        <p>Employee {{ name_user }} will be out of the office on the day:</p>
+                        <p>Day off:</p>
+                        <p>{{date_off}}</p>
+                        <p>If you need immediate assistance during their absence, please contact {{ name_user }}
+                            at {{ email_user }}. Otherwise they will respond to your emails as soon as possible upon their
                             return.</p>
                     </td>
                 </tr>

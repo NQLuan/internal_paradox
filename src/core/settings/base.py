@@ -24,7 +24,6 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'corsheaders',
     'django_crontab',
-    'sendgrid',
 )
 LOCAL_APPS = (
     'api',

@@ -4,7 +4,7 @@ from .request_off import RequestOffSerializer
 
 
 class RequestDetailSerializer(serializers.ModelSerializer):
-    request_off_id = RequestOffSerializer(many=False, read_only=True)
+    request_off = RequestOffSerializer(many=False, read_only=True)
 
     class Meta:
         model = RequestDetail

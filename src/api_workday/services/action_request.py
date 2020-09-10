@@ -18,7 +18,7 @@ class ActionRequestService:
             "request_off": request_off.id,
             "approve": profile.id
         }
-        # SendMailRequestOff.send_request()
+
         serializer = RequestDetailSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(request_off_id=request_off.id)
@@ -27,20 +27,39 @@ class ActionRequestService:
     def action_approve(cls, request_off_id, user, comment):
         company_setting = Company.objects.filter().first()
         level = company_setting.maximum_level_approved
-        count_action = RequestDetail.objects.filter(request_off_id=request_off_id).count()
+        user_action = RequestDetail.objects.filter(request_off_id=request_off_id)
         request_off = RequestOff.objects.filter(id=request_off_id).first()
         request_detail = RequestDetail.objects.filter(request_off_id=request_off_id, approve=user).first()
         if request_detail.status or request_off.status == Workday.STATUS_CANCEL:
             return request_detail
         with transaction.atomic():
             if request_off.status != Workday.STATUS_CANCEL:
-                if count_action < level and user.line_manager is not None:
+                if user_action.count() < level and user.line_manager is not None:
                     request_off.status = Workday.STATUS_FORWARDED
                     request_off.save()
-                    cls.create_action_user(request_off_id, user.line_manager.id)
+                    cls.create_action_user(request_off, user.line_manager)
+                    email = {
+                        'user': [request_off.profile.user.email],
+                        'admin': [user.line_manager.user.email]
+                    }
+                    SendMailRequestOff.send_forward_request(name_admin=user.name,
+                                                            name_admin_manage=user.line_manager.name,
+                                                            name_user=request_off.profile.name, email=email,
+                                                            date_off=request_off.date_off.all())
                 else:
                     request_off.status = Workday.STATUS_APPROVED
                     request_off.save()
+
+                    SendMailRequestOff.send_approve_request_to_user(name_admin=user.name, name_user=request_off.profile.name,
+                                                            list_email=[request_off.profile.user.email], date_off=request_off.date_off.all())
+
+                    list_email_manage = []
+                    for manage in user_action:
+                        list_email_manage.append(manage.approve.user.email)
+                    SendMailRequestOff.send_approve_request_to_manage(name_user=request_off.profile.name,
+                                                                      email_user=request_off.profile.user.email,
+                                                                      list_email=list_email_manage,
+                                                                      date_off=request_off.date_off.all())
             request_detail.status = Workday.STATUS_APPROVED
             request_detail.comment = comment
             request_detail.save()
@@ -58,6 +77,9 @@ class ActionRequestService:
             request_detail.status = Workday.STATUS_REJECTED
             request_detail.comment = comment
             request_detail.save()
+            SendMailRequestOff.send_reject_request(name_user=request_off.profile.name, name_admin=user.name,
+                                                   reason=request_detail.comment,
+                                                   list_email=[request_off.profile.user.email])
 
         return request_detail
 

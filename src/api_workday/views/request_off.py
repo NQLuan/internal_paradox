@@ -14,6 +14,7 @@ from api_workday.serializers.request_off import RequestOffSerializer
 from api_workday.services import RequestOffServices
 from rest_framework.generics import ListAPIView
 from api_workday.services.action_request import ActionRequestService
+from api_workday.services.send_mail import SendMailRequestOff
 
 
 class RequestOffDetail(APIView):
@@ -43,8 +44,12 @@ class RequestOffDetail(APIView):
                     }
                     dateSerializer = DateOffSerizlizer(data=date_data)
                     if dateSerializer.is_valid():
-                        dateSerializer.save()
-            ActionRequestService.create_action_user(request_off, profile.line_manager)
+                        date_off = dateSerializer.save()
+                ActionRequestService.create_action_user(request_off, profile.line_manager)
+                SendMailRequestOff.send_request(name_admin=profile.line_manager.name,
+                                                name_user=request_off.profile.name,
+                                                list_email=[profile.line_manager.user.email],
+                                                date_off=request_off.date_off.all())
             return Response(requestSerializer.data, status=status.HTTP_201_CREATED)
         except:
             return Response({'Error': 'Error'}, status=status.HTTP_400_BAD_REQUEST)

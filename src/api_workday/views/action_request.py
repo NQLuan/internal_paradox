@@ -48,6 +48,7 @@ class GetRequestDetail(ListAPIView):
     queryset = RequestDetail.objects.all()
     authentication_classes = [APIAuthentication]
     permission_classes = [IsAuthenticated]
+    pagination_class = None
     serializer_class = RequestDetailSerializer
 
     def get_queryset(self):
