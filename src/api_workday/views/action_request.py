@@ -10,6 +10,9 @@ from api_workday.serializers.request_off import RequestOffSerializer
 from api_workday.models.request_detail import RequestDetail
 from rest_framework.pagination import PageNumberPagination
 # from api.pagination import CustomPagination
+from datetime import date
+from api_workday.models.date_off import DateOff
+import pytz
 from rest_framework.generics import ListAPIView
 
 
@@ -53,4 +56,18 @@ class GetRequestDetail(ListAPIView):
 
     def get_queryset(self):
         profile = self.request.user.profile
-        return self.queryset.filter(approve=profile).order_by('-created_at')
+        queryset = self.queryset.filter(approve=profile).order_by('-created_at')
+        year = self.request.query_params.get('year')
+        month = self.request.query_params.get('month')
+        day = self.request.query_params.get('day')
+
+        if year:
+            date_off = DateOff.objects.filter(date__year=year)
+            queryset = queryset.filter(request_off__date_off__in=date_off)
+            if month:
+                date_off = date_off.filter(date__month=month)
+                queryset = queryset.filter(request_off__date_off__in=date_off)
+                if day:
+                    date_off = date_off.filter(date__day=day)
+                    queryset = queryset.filter(request_off__date_off__in=date_off)
+        return queryset

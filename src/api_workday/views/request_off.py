@@ -83,6 +83,7 @@ class GetMyRequest(ListAPIView):
     queryset = RequestOff.objects.all()
     permission_classes = [IsAuthenticated]
     authentication_classes = [APIAuthentication]
+    pagination_class = None
     serializer_class = RequestOffSerializer
 
     def get_queryset(self):
